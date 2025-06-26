@@ -1,0 +1,39 @@
+const { makeWASocket, useMultiFileAuthState, fetchLatestBaileysVersion, downloadMediaMessage } = require("@whiskeysockets/baileys");
+const commands = require("./commands");
+const fs = require("fs");
+
+async function connectToWhatsApp() {
+  const { state, saveCreds } = await useMultiFileAuthState("auth_info_baileys");
+
+  const { version } = await fetchLatestBaileysVersion();
+  const sock = makeWASocket({
+    version,
+    printQRInTerminal: true,
+    auth: state,
+  });
+
+  sock.ev.on("creds.update", saveCreds);
+
+  sock.ev.on("messages.upsert", async ({ messages }) => {
+    const m = messages[0];
+    if (!m.message || m.key.fromMe) return;
+
+    const text = m.message?.conversation || m.message?.extendedTextMessage?.text || "";
+    const args = text.trim().split(" ");
+    const command = args.shift().toLowerCase();
+
+    if (command.startsWith(".")) {
+      const cmd = command.slice(1);
+      if (commands[cmd]) {
+        try {
+          await commands[cmd](m, sock, args);
+        } catch (e) {
+          console.log("Error handling command:", e);
+          sock.sendMessage(m.key.remoteJid, { text: "❌ Error running that command." });
+        }
+      }
+    }
+  });
+}
+
+connectToWhatsApp();
