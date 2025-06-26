@@ -1,0 +1,17 @@
+{
+  "name": "egzile-bot",
+  "version": "2.0.0",
+  "description": "Powerful WhatsApp AI Bot by Egzile",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "baileys": "^6.6.0",
+    "axios": "^1.6.7",
+    "chalk": "^5.3.0",
+    "moment": "^2.29.4",
+    "mime-types": "^2.1.35",
+    "fs-extra": "^11.2.0"
+  }
+}
